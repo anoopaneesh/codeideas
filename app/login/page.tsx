@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-
+import { useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -26,13 +26,17 @@ const formSchema = z.object({
     }),
 })
 
-export default function Home() {
+export default function Login() {
+
+    const searchParams = useSearchParams()
+
+    const redirectedEmail = searchParams.get('email')
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            username: "", 
-            password:"", 
+            username: redirectedEmail || "",
+            password: "",
         },
     })
 
@@ -62,7 +66,7 @@ export default function Home() {
                                 </FormItem>
                             )}
                         />
-                         <FormField
+                        <FormField
                             control={form.control}
                             name="password"
                             render={({ field }) => (
@@ -79,7 +83,7 @@ export default function Home() {
                     </form>
                 </Form>
             </div>
-            <Link href="/signin"><p className="underline mt-10">Don't have an account ? Join Us</p></Link>
+            <Link href="/signup"><p className="underline mt-10">Don't have an account ? Join Us</p></Link>
         </div>
     </div>)
 }
