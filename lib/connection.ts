@@ -14,6 +14,7 @@ export async function connectDB() {
         }
         return state.db
     } catch (error) {
+        console.log(error)
         console.log(`Error occured connecting to DB`)
     }
 }

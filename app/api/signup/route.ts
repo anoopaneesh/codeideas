@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
         const hashedPassword = await bcrypt.hash(data.password,10)
         await connectDB(); 
         const userExists = await getUser({email:data.email})
-        console.log(userExists)
         if(userExists){
             return NextResponse.json({message:"User already exists"},{status:409})
         }
+        const usernameParts = new RegExp('[a-z]+').exec(data.email.toLowerCase())
         const user = new User({
-            username:data.username,
+            username:usernameParts?.[0] || "",
             email:data.email,
             password:hashedPassword
         })

@@ -1,12 +1,11 @@
-import axios from "axios"
-
+import axiosInstance from "./axiosInstance"
 type SignUpValues = {
     email: string
     password: string
 }
 export const signup = async (values: SignUpValues) => {
     try {
-        const data = await axios.post('/api/signup', JSON.stringify({
+        const data = await axiosInstance.post('/api/signup', JSON.stringify({
 
             "email": values.email,
             "password": values.password,
@@ -21,5 +20,27 @@ export const signup = async (values: SignUpValues) => {
             throw new Error(error?.response?.data?.message)
         }
         throw new Error("Signup failed, please try again.")
+    }
+}
+
+type LoginValues = {
+    username:string
+    password:string
+}
+
+export const login = async (values:LoginValues) => {
+    try{
+        const {data} = await axiosInstance.post('/api/login',JSON.stringify(values),{
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+        return data
+    }catch(error:any){
+        const status = error?.response?.status
+        if (status === 404) {
+            throw new Error(error?.response?.data?.message)
+        }
+        throw new Error("Login failed, please try again.")
     }
 }

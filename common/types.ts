@@ -15,3 +15,10 @@ export type ConsoleMessage = {
 export type ConsoleMessageWrapper = {
   [id:string] : ConsoleMessage
 }
+
+export type UserModel = {
+  _id:any
+  username?:string
+  password:string
+  email:string
+}

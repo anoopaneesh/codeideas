@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -15,6 +14,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
+import { login } from "@/services/auth.service"
+import { useRouter } from "next/navigation"
 
 
 const formSchema = z.object({
@@ -27,9 +30,10 @@ const formSchema = z.object({
 })
 
 export default function Login() {
-
+    const router = useRouter()
     const searchParams = useSearchParams()
-
+    const [errorText,setErrorText] = useState("")
+    const { toast } = useToast();
     const redirectedEmail = searchParams.get('email')
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
@@ -41,10 +45,27 @@ export default function Login() {
     })
 
     // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            setErrorText("")
+            const data = await login({ username: values.username, password: values.password })
+            localStorage.setItem(process.env.NEXT_PUBLIC_ST_ID+'access_token',data.access_token)
+            localStorage.setItem(process.env.NEXT_PUBLIC_ST_ID+'refresh_token',data.refresh_token)
+            setTimeout(() => {
+                router.push('/')
+            }, 500)
+            toast({
+                title: "User logged in successfully.",
+                duration: 500,
+                onDurationChange: (...args) => {
+                    console.log({ args })
+                }
+            })
+
+
+        } catch (error: any) {
+            setErrorText(error.message)
+        }
     }
 
     return (<div className="bg-black w-full h-screen flex flex-col items-center justify-center text-white">
@@ -73,12 +94,13 @@ export default function Login() {
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <Input className="border-0 focus:outline-0 focus:ring-0 bg-neutral-900" placeholder="" {...field} />
+                                        <Input type="password" className="border-0 focus:outline-0 focus:ring-0 bg-neutral-900" placeholder="" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+                        <p className="text-red-500">{errorText}</p>
                         <Button type="submit">Submit</Button>
                     </form>
                 </Form>
