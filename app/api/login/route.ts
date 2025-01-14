@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { UserModel } from "@/common/types";
+import { connectDB } from "@/lib/connection";
 export async function POST(request:NextRequest){
     try{
+        await connectDB()
         const data = await request.json()
         const userExist : UserModel = await getUser({username:data.username,email:data.username})
         console.log(userExist)
@@ -20,8 +22,12 @@ export async function POST(request:NextRequest){
         const refresh_token = jwt.sign({id:userExist._id.toString(),email:userExist.email,username:userExist.username},process.env.REFRESH_JWT_SECRET||"refresh-secret",{expiresIn:'2 days'})
 
        if(!passwordCheck) return NextResponse.json({message:"Username or password is invalid"},{status:404})
-       return NextResponse.json({access_token,refresh_token})
+       const response =  NextResponse.json({access_token})
+
+       response.cookies.set('refresh_token',refresh_token,{maxAge:2 * 24 * 60 * 60,httpOnly:true,secure:true})
+       return response;
     }catch(error){
+        console.log(error)
          return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
     }
 } 

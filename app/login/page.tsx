@@ -50,7 +50,6 @@ export default function Login() {
             setErrorText("")
             const data = await login({ username: values.username, password: values.password })
             localStorage.setItem(process.env.NEXT_PUBLIC_ST_ID+'access_token',data.access_token)
-            localStorage.setItem(process.env.NEXT_PUBLIC_ST_ID+'refresh_token',data.refresh_token)
             setTimeout(() => {
                 router.push('/')
             }, 500)

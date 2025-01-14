@@ -43,10 +43,8 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const response = await axios.post('/api/refresh', JSON.stringify({ refresh_token: localStorage.getItem(process.env.NEXT_PUBLIC_ST_ID + "refresh_token")}), {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                const response = await axios.get('/api/refresh',{
+                    withCredentials:true
                 });
                 if (response) {
                     //update the access token-t
